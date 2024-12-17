@@ -1,0 +1,17 @@
+package components
+
+templ NavBar() {
+	<header class="border bg-white p-4 px-6 mb-2 w-full flex flex-row gap-4 justify-between items-center rounded">
+		<section class="inline-flex gap-3 items-center">
+			<img src="/public/assets/imgs/ipsantarem.png" class="w-[10em] -mx-4"/>
+			<h1 class="text-xl font-bold ">Ai2Learn</h1>
+		</section>
+		<ul class="flex flex-row gap-2 items-center">
+			for _ = range 3 {
+				<li>
+					@Link("/#", "Home")
+				</li>
+			}
+		</ul>
+	</header>
+}

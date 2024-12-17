@@ -1,0 +1,15 @@
+package pages
+
+import "github.com/tomascarruco/ai2learn-bkend/web/ui/layouts"
+
+templ indexPage() {
+	<main
+		class="bg-white rounded w-full p-6 border"
+	>
+		<h1>Hello there</h1>
+	</main>
+}
+
+templ IndexPage() {
+	@layouts.BaseLayout(indexPage())
+}

@@ -1,0 +1,10 @@
+package components
+
+templ Link(url string, content string) {
+	<a
+		href={ templ.SafeURL(url) }
+		class="p-1.5 px-2.5 border-b border-slate-300 bg-white hover:border-blue-700 transition ease-in-out"
+	>
+		{ content }
+	</a>
+}
