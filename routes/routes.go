@@ -48,13 +48,13 @@ func SetupRouting(app *fiber.App) {
 	media.Use(authentication.JwtMiddleware())
 	media.Post("/setup", HandleNewUserWorkspaceCreation)
 
-	// --- Handles PDF realted functionality, getting, etc...
 	media.Route(
-		"/pdf",
+		"/upload",
 		func(router fiber.Router) {
-			router.Post("", HandleNewPdfUpload)
+			router.Post("/document", HandleNewDocumentUpload)
+			router.Post("/image", HandleNewImgUpload)
 		},
-		"pdfs.",
+		"user_upload.",
 	)
 }
 
@@ -102,9 +102,7 @@ func HandleNewSessionRequest(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"token": jwt})
 }
 
-func HandleNewPdfUpload(c *fiber.Ctx) error {
-	// TODO: Extract file from fiber context
-
+func HandleNewDocumentUpload(c *fiber.Ctx) error {
 	logger := log.WithContext(c.UserContext())
 	logger.Infow("Received new PDF upload request")
 
@@ -149,6 +147,51 @@ func HandleNewPdfUpload(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusOK)
 }
 
+func HandleNewImageUpload(c *fiber.Ctx) error {
+	logger := log.WithContext(c.UserContext())
+	logger.Infow("Received new PDF upload request")
+
+	claims := authentication.ExtractJwtMClaims(c)
+	subject := claims["name"].(string)
+
+	formFile, err := c.FormFile("image")
+	if err != nil {
+		logger.Errorw("Error on retrieving image from request", "reason", err.Error())
+		return fiber.ErrBadRequest
+	}
+
+	fileReader, err := formFile.Open()
+	if err != nil {
+		logger.Errorw("Failed to open file sent in the form", "reason", err.Error())
+		return fiber.ErrBadRequest
+	}
+
+	ctx, cancel := context.WithTimeout(c.UserContext(), time.Second*40)
+	defer cancel()
+
+	bucketPath := fmt.Sprintf("%s-media-store", subject)
+
+	err = gcloud.GCloudStorage.UploadObjectToBucket(
+		ctx,
+		logger,
+		media.NewUserFileUpRequest(
+			bucketPath,
+			media.InImagesFolder,
+			formFile.Filename,
+			media.IMG,
+			fileReader,
+		),
+	)
+	if err != nil {
+		logger.Errorw("Failure uploading object", "reason", err.Error())
+		return fiber.ErrBadRequest
+	}
+
+	logger.Infow("Succes uploading image!", "file_name", formFile.Filename)
+
+	return c.SendStatus(fiber.StatusOK)
+}
+
 func HandleNewUserWorkspaceCreation(c *fiber.Ctx) error {
 	logger := log.WithContext(c.UserContext())
 	logger.Infow("Creating new user workspace")
@@ -172,20 +215,20 @@ func HandleNewUserWorkspaceCreation(c *fiber.Ctx) error {
 
 // TODO:
 func HandleImageSummary(c *fiber.Ctx) error {
-	return c.SendStatus(fiber.StatusNotImplemented)
+	return fiber.ErrNotImplemented
 }
 
 // TODO:
 func HandleDocumentSummary(c *fiber.Ctx) error {
-	return c.SendStatus(fiber.StatusNotImplemented)
+	return fiber.ErrNotImplemented
 }
 
 // TODO:
 func HandleQuizzRetrieval(c *fiber.Ctx) error {
-	return c.SendStatus(fiber.StatusNotImplemented)
+	return fiber.ErrNotImplemented
 }
 
 // TODO:
 func HandleTestRetrieval(c *fiber.Ctx) error {
-	return c.SendStatus(fiber.StatusNotImplemented)
+	return fiber.ErrNotImplemented
 }

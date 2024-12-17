@@ -39,3 +39,7 @@ func SetupUserMediaStorage(userName string, logger log.CommonLogger, folders ...
 
 	return nil
 }
+
+func UploadImage(fileName string, content []byte, contentType AcceptedObjContentType) error {
+	return nil
+}
