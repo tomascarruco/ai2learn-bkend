@@ -7,15 +7,18 @@ import (
 	"strings"
 	"time"
 
+	"github.com/a-h/templ"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 
 	"github.com/tomascarruco/ai2learn-bkend/authentication"
 	"github.com/tomascarruco/ai2learn-bkend/services/gcloud"
 	"github.com/tomascarruco/ai2learn-bkend/services/media"
+	"github.com/tomascarruco/ai2learn-bkend/web/ui/pages"
 )
 
 func SetupRouting(app *fiber.App) {
+	// API
 	api := app.Group("/api")
 
 	v1 := api.Group("/v1", func(c *fiber.Ctx) error {
@@ -56,6 +59,17 @@ func SetupRouting(app *fiber.App) {
 		},
 		"user_upload.",
 	)
+
+	// UI
+	ui := app.Group("/")
+	ui.Get("", func(c *fiber.Ctx) error {
+		return Render(c, pages.IndexPage())
+	})
+}
+
+func Render(c *fiber.Ctx, component templ.Component) error {
+	c.Set(fiber.HeaderContentType, fiber.MIMETextHTML)
+	return component.Render(c.Context(), c.Response().BodyWriter())
 }
 
 func HandleNewSessionRequest(c *fiber.Ctx) error {
