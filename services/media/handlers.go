@@ -2,6 +2,7 @@ package media
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -41,5 +42,5 @@ func SetupUserMediaStorage(userName string, logger log.CommonLogger, folders ...
 }
 
 func UploadImage(fileName string, content []byte, contentType AcceptedObjContentType) error {
-	return nil
+	return errors.New("Unimplemented")
 }

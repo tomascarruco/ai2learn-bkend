@@ -52,7 +52,7 @@ func SetupRouting(app *fiber.App) {
 		"/upload",
 		func(router fiber.Router) {
 			router.Post("/document", HandleNewDocumentUpload)
-			router.Post("/image", HandleNewImgUpload)
+			router.Post("/image", HandleNewImageUpload)
 		},
 		"user_upload.",
 	)
@@ -218,9 +218,38 @@ func HandleImageSummary(c *fiber.Ctx) error {
 	return fiber.ErrNotImplemented
 }
 
-// TODO:
+type docSummaryRequestQuery struct {
+	DocumentName string `query:"target"`
+}
+
 func HandleDocumentSummary(c *fiber.Ctx) error {
-	return fiber.ErrNotImplemented
+	logger := log.WithContext(c.UserContext())
+	logger.Infow("Creating new user workspace")
+
+	var routeQuery docSummaryRequestQuery
+
+	if err := c.QueryParser(routeQuery); err != nil {
+		logger.Warnw("Bad user request for doc summary", "reason", err.Error())
+		return fiber.ErrBadRequest
+	}
+
+	claims := authentication.ExtractJwtMClaims(c)
+	subject := claims["name"].(string)
+
+	modelConnector, err := gcloud.NewGenAiModelConnector(subject, gcloud.PROMPT_DOCUMENT_SUMMARY)
+	if err != nil {
+		logger.Errorw("Could not create new model interaction", "reason", err)
+	}
+
+	generationRequest, err := modelConnector.SummarizeTexBasedContent("", "application/pdf")
+	if err != nil {
+		log.Errorw("Could not summarize document", "reason", err.Error())
+		return fiber.ErrInternalServerError
+	}
+
+	return c.JSON(fiber.Map{
+		"summary": generationRequest.GeneratedContent,
+	})
 }
 
 // TODO:
