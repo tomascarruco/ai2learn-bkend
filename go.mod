@@ -9,6 +9,8 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1
 )
 
+require github.com/a-h/templ v0.2.793
+
 require (
 	cel.dev/expr v0.16.1 // indirect
 	cloud.google.com/go v0.116.0 // indirect
