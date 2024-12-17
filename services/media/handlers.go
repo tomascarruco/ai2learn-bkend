@@ -6,14 +6,10 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2/log"
-	"github.com/tomascarruco/ai2learn-bkend/services/gcloud"
+	gcloud "github.com/tomascarruco/ai2learn-bkend/services/gcloud"
 )
 
-func SetupUserMediaStorage(userName string, logger log.CommonLogger) error {
-	// TODO: Createa bucket for the user
-	// TODO: Create adequate "imput" folders for PDFs and Images
-	// TODO: Create the "output" folders for Content description/summary, image analysis and PDF quiz generation
-
+func SetupUserMediaStorage(userName string, logger log.CommonLogger, folders ...string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*2)
 	defer cancel()
 
@@ -24,12 +20,8 @@ func SetupUserMediaStorage(userName string, logger log.CommonLogger) error {
 		return err
 	}
 
-	inputFolders := []string{"textbased", "images"}
-	outputFolders := []string{"file_summarys", "img_analysis", "quizzs"}
-
-	filesSlice := append(inputFolders, outputFolders...)
-	log.Debugw("Files slices", "slice", filesSlice)
-	for _, folderName := range filesSlice {
+	log.Debugw("Files slices", "slice", folders)
+	for _, folderName := range folders {
 		_, err := gcloud.GCloudStorage.CreateBucketFolder(bucket, folderName)
 		if err != nil {
 			logger.Errorw(

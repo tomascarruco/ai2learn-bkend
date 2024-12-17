@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 
-	"cloud.google.com/go/storage"
-	"github.com/gofiber/fiber/v2/log"
+	storage "cloud.google.com/go/storage"
+	log "github.com/gofiber/fiber/v2/log"
 
 	control "cloud.google.com/go/storage/control/apiv2"
 	"cloud.google.com/go/storage/control/apiv2/controlpb"
@@ -117,4 +118,50 @@ func (cs *CloudStorageHandler) CreateBucketFolder(
 	}
 
 	return newFolder, err
+}
+
+type ObjectUploadRequest interface {
+	Bucket() string
+	Folder() string
+	ObjName() string
+	ContentType() string
+	ContentReader() io.Reader
+}
+
+func (cs *CloudStorageHandler) UploadObjectToBucket(
+	ctx context.Context,
+	log log.CommonLogger,
+	uploadReq ObjectUploadRequest,
+) error {
+	log.Infow(
+		"Uploading object to bucket",
+		"folder",
+		uploadReq.Folder(),
+		"name",
+		uploadReq.ObjName(),
+		"bucket",
+		uploadReq.Bucket(),
+	)
+
+	objectPath := fmt.Sprintf("%s/%s", uploadReq.Folder(), uploadReq.ObjName())
+
+	object := cs.client.Bucket(uploadReq.Bucket()).Object(objectPath)
+	object = object.If(storage.Conditions{DoesNotExist: true})
+
+	wc := object.NewWriter(ctx)
+	wc.ChunkSize = 512
+
+	if _, err := io.Copy(wc, uploadReq.ContentReader()); err != nil {
+		log.Errorw("Failed to copy data from buffer into Object writer", "reason", err.Error())
+		return err
+	}
+
+	if err := wc.Close(); err != nil {
+		log.Errorw("Error closing the object content writer", "reason", err.Error())
+		return err
+	}
+
+	log.Infow("Uploaded object data to bucket")
+
+	return nil
 }

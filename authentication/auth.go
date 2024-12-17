@@ -16,7 +16,7 @@ var ErrFailedToCreateUserJWT = errors.New("could not create a user token")
 func CreateSessionJwt(user string) (token string, err error) {
 	claims := jwt.MapClaims{
 		"name": user,
-		"exp":  time.Now().Add(time.Hour).Unix(),
+		"exp":  time.Now().Add(time.Hour * 24).Unix(),
 	}
 	userToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
