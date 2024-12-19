@@ -12,7 +12,7 @@ templ workspace() {
 			transition: opacity .5s ease-in-out;
 		}
 	</style>
-	<div id="results"></div>
+	<div id="results" class="absolute bottom-3 right-3"></div>
 	<main
 		id="workspace"
 		class="bg-white rounded p-6 border w-full max-w-xl mx-auto "
@@ -89,7 +89,7 @@ templ workspaceExists(wsFolders []components.FolderProps) {
 			transition: opacity .5s ease-in-out;
 		}
 	</style>
-	<div id="results"></div>
+	<div id="results" class="absolute bottom-3 right-4"></div>
 	<main
 		id="workspace"
 		class="bg-white rounded p-6 border w-full max-w-xl mx-auto "
@@ -105,13 +105,31 @@ templ workspaceExists(wsFolders []components.FolderProps) {
 		<section class="px-4 flex flex-col gap-2 items-start justify-center">
 			<ul class="w-full space-y-3">
 				for _, folder := range wsFolders {
-					<li>
-						@components.Folder(folder)
-					</li>
+					if folder.Name != "" {
+						<li>
+							@components.Folder(folder)
+						</li>
+					}
 				}
 			</ul>
 		</section>
+		<hr class="my-4"/>
+		<section
+			class="flex flex-row flex-wrap gap-2 items-center justify-start px-4"
+		>
+			<button
+				hx-get="/workspace/upload"
+				hx-target="#new_upload"
+				hx-swap="innerHTML swap:0.2s"
+				type="button"
+				class="flex flex-row gap-2 items-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+			>
+				Novo Upload
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-plus"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M9 15h6"></path><path d="M12 18v-6"></path></svg>
+			</button>
+		</section>
 	</main>
+	<section id="new_upload"></section>
 }
 
 templ WorkspaceExists(wsFolders []components.FolderProps) {
@@ -120,4 +138,71 @@ templ WorkspaceExists(wsFolders []components.FolderProps) {
 
 templ Workspace() {
 	@layouts.BaseLayout(workspace())
+}
+
+templ WorkspaceUploadComponent() {
+	<style type="text/css">
+		#upload_file.htmx-added {
+		  opacity: 0;
+		}
+		#upload_file {
+  		opacity: 1;
+  		transition: opacity 0.3s ease-in;
+		}
+	</style>
+	<main
+		id="upload_file"
+		class="bg-white rounded p-6 border w-full max-w-xl mx-auto space-y-4"
+		hx-ext="response-targets"
+	>
+		<section>
+			<h2 class="text-lg font-semibold">Novo upload.</h2>
+			<p class="italic text-sm text-slate-400">Escolhe um documento para adicionar.</p>
+		</section>
+		<hr class="my-4"/>
+		<form
+			method="POST"
+			id="newUploadForm"
+			hx-post="/api/v1/media/upload/document"
+			hx-trigger="htmx:afterSwap from:upNewFile"
+			hx-target-errors="#results"
+			enctype="multipart/form-data"
+			class="flex flex-row gap-4 items-center justify-center"
+		>
+			<button
+				hx-post="/workspace/upload/start"
+				hx-target="this"
+				hx-swap="outerHTML"
+				hx-target-error="#results"
+				id="sendStuff"
+				class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-full text-sm px-7 py-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
+			>
+				Enviar
+			</button>
+			@components.FileUploadComponent(components.FileUploadProps{
+				Label:   "Escolhe um ficheiro para enviar",
+				Subtext: "Aceitamos PDF, TXT, JPG e PNG",
+				Name:    "document",
+			})
+		</form>
+	</main>
+}
+
+templ FileUploadStatus() {
+	<button
+		id="upNewFile"
+		hx-post="/api/v1/media/upload/document"
+		hx-encoding="multipart/form-data"
+		hx-include="closest input[type='file']"
+		hx-trigger="load delay:1s"
+		hx-target-errors="#results"
+		hx-swap="none"
+		disabled
+		class="min-w-fit disabled:opacity-35 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+	>
+		A enviar...
+		<div class="mx-1 spin animate-spin">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-loader"><path d="M12 2v4"></path><path d="m16.2 7.8 2.9-2.9"></path><path d="M18 12h4"></path><path d="m16.2 16.2 2.9 2.9"></path><path d="M12 18v4"></path><path d="m4.9 19.1 2.9-2.9"></path><path d="M2 12h4"></path><path d="m4.9 4.9 2.9 2.9"></path></svg>
+		</div>
+	</button>
 }

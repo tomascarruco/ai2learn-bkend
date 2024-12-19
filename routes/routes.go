@@ -20,6 +20,10 @@ import (
 )
 
 func SetupRouting(app *fiber.App) {
+	app.Delete("/", func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusOK)
+	})
+
 	// API
 	api := app.Group("/api")
 
@@ -104,10 +108,6 @@ func SetupRouting(app *fiber.App) {
 			router.Get("", authentication.JwtMiddleware(), func(c *fiber.Ctx) error {
 				log.Debugw("TOKEN", "token", c.Cookies("session"))
 				_, err := authentication.ExtractJwtMClaims(c)
-				if err != nil {
-					log.Errorw("Error on parssing jwt", "reason", err.Error())
-					return fiber.ErrBadRequest
-				}
 
 				foldersToCreate := append(media.InputFolders[:], media.OutputFolders...)
 				folders := make([]components.FolderProps, len(foldersToCreate))
@@ -128,11 +128,11 @@ func SetupRouting(app *fiber.App) {
 					}
 				}
 
-				if err == nil {
-					return Render(c, pages.WorkspaceExists(folders))
-				} else {
+				if err != nil {
 					return Render(c, pages.Workspace())
 				}
+
+				return Render(c, pages.WorkspaceExists(folders))
 			})
 
 			router.Get("/create", func(c *fiber.Ctx) error {
@@ -148,6 +148,18 @@ func SetupRouting(app *fiber.App) {
 					},
 				}
 				return Render(c, pages.WorkspaceCreated(folders))
+			})
+
+			router.Get(
+				"/upload",
+				authentication.JwtMiddleware(),
+				func(c *fiber.Ctx) error {
+					return Render(c, pages.WorkspaceUploadComponent())
+				},
+			)
+
+			router.Post("/upload/start", func(c *fiber.Ctx) error {
+				return Render(c, pages.FileUploadStatus())
 			})
 		},
 		"workspace.",

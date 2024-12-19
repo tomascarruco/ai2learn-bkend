@@ -34,7 +34,7 @@ func workspace() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style lang=\"css\">\n\t\t#workspace.htmx-swapping >* {\n\t\t\topacity: 0;\n\t\t\ttransition: opacity .5s ease-in-out;\n\t\t}\n\t</style><div id=\"results\"></div><main id=\"workspace\" class=\"bg-white rounded p-6 border w-full max-w-xl mx-auto \" hx-target=\"this\" hx-target-5*=\"#results\" hx-swap=\"innerhtml swap:0.5s \"><section><h2 class=\"text-lg font-semibold\">área de trabalho</h2><p class=\"italic text-sm text-slate-400\">parece que não tens nehuma área de trabalho.</p></section><hr class=\"my-4\"><button hx-get=\"/workspace/create\" type=\"button\" class=\"text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800\">nova área <svg class=\"rtl:rotate-180 w-3.5 h-3.5 ms-2\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewbox=\"0 0 14 10\"><path stroke=\"currentcolor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"m1 5h12m0 0l9 1m4 4l9 9\"></path></svg></button></main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style lang=\"css\">\n\t\t#workspace.htmx-swapping >* {\n\t\t\topacity: 0;\n\t\t\ttransition: opacity .5s ease-in-out;\n\t\t}\n\t</style><div id=\"results\" class=\"absolute bottom-3 right-3\"></div><main id=\"workspace\" class=\"bg-white rounded p-6 border w-full max-w-xl mx-auto \" hx-target=\"this\" hx-target-5*=\"#results\" hx-swap=\"innerhtml swap:0.5s \"><section><h2 class=\"text-lg font-semibold\">área de trabalho</h2><p class=\"italic text-sm text-slate-400\">parece que não tens nehuma área de trabalho.</p></section><hr class=\"my-4\"><button hx-get=\"/workspace/create\" type=\"button\" class=\"text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800\">nova área <svg class=\"rtl:rotate-180 w-3.5 h-3.5 ms-2\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewbox=\"0 0 14 10\"><path stroke=\"currentcolor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"m1 5h12m0 0l9 1m4 4l9 9\"></path></svg></button></main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -139,25 +139,27 @@ func workspaceExists(wsFolders []components.FolderProps) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style lang=\"css\">\n\t\t#workspace.htmx-swapping >* {\n\t\t\topacity: 0;\n\t\t\ttransition: opacity .5s ease-in-out;\n\t\t}\n\t</style><div id=\"results\"></div><main id=\"workspace\" class=\"bg-white rounded p-6 border w-full max-w-xl mx-auto \" hx-target=\"this\" hx-target-5*=\"#results\" hx-swap=\"innerhtml swap:0.5s \"><section><h2 class=\"text-lg font-semibold\">Área de trabalho</h2><p class=\"italic text-sm text-slate-400\">O teu conteudo.</p></section><hr class=\"my-4\"><section class=\"px-4 flex flex-col gap-2 items-start justify-center\"><ul class=\"w-full space-y-3\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style lang=\"css\">\n\t\t#workspace.htmx-swapping >* {\n\t\t\topacity: 0;\n\t\t\ttransition: opacity .5s ease-in-out;\n\t\t}\n\t</style><div id=\"results\" class=\"absolute bottom-3 right-4\"></div><main id=\"workspace\" class=\"bg-white rounded p-6 border w-full max-w-xl mx-auto \" hx-target=\"this\" hx-target-5*=\"#results\" hx-swap=\"innerhtml swap:0.5s \"><section><h2 class=\"text-lg font-semibold\">Área de trabalho</h2><p class=\"italic text-sm text-slate-400\">O teu conteudo.</p></section><hr class=\"my-4\"><section class=\"px-4 flex flex-col gap-2 items-start justify-center\"><ul class=\"w-full space-y-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, folder := range wsFolders {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = components.Folder(folder).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</li>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
+			if folder.Name != "" {
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<li>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = components.Folder(folder).Render(ctx, templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</li>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</ul></section></main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</ul></section><hr class=\"my-4\"><section class=\"flex flex-row flex-wrap gap-2 items-center justify-start px-4\"><button hx-get=\"/workspace/upload\" hx-target=\"#new_upload\" hx-swap=\"innerHTML swap:0.2s\" type=\"button\" class=\"flex flex-row gap-2 items-center text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800\">Novo Upload <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-file-plus\"><path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"></path><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"></path><path d=\"M9 15h6\"></path><path d=\"M12 18v-6\"></path></svg></button></section></main><section id=\"new_upload\"></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -216,6 +218,76 @@ func Workspace() templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = layouts.BaseLayout(workspace()).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+func WorkspaceUploadComponent() templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var7 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var7 == nil {
+			templ_7745c5c3_Var7 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style type=\"text/css\">\n\t\t#upload_file.htmx-added {\n\t\t  opacity: 0;\n\t\t}\n\t\t#upload_file {\n  \t\topacity: 1;\n  \t\ttransition: opacity 0.3s ease-in;\n\t\t}\n\t</style><main id=\"upload_file\" class=\"bg-white rounded p-6 border w-full max-w-xl mx-auto space-y-4\" hx-ext=\"response-targets\"><section><h2 class=\"text-lg font-semibold\">Novo upload.</h2><p class=\"italic text-sm text-slate-400\">Escolhe um documento para adicionar.</p></section><hr class=\"my-4\"><form method=\"POST\" id=\"newUploadForm\" hx-post=\"/api/v1/media/upload/document\" hx-trigger=\"htmx:afterSwap from:upNewFile\" hx-target-errors=\"#results\" enctype=\"multipart/form-data\" class=\"flex flex-row gap-4 items-center justify-center\"><button hx-post=\"/workspace/upload/start\" hx-target=\"this\" hx-swap=\"outerHTML\" hx-target-error=\"#results\" id=\"sendStuff\" class=\"focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-full text-sm px-7 py-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900\">Enviar</button>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.FileUploadComponent(components.FileUploadProps{
+			Label:   "Escolhe um ficheiro para enviar",
+			Subtext: "Aceitamos PDF, TXT, JPG e PNG",
+			Name:    "document",
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</form></main>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+func FileUploadStatus() templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var8 == nil {
+			templ_7745c5c3_Var8 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button id=\"upNewFile\" hx-post=\"/api/v1/media/upload/document\" hx-encoding=\"multipart/form-data\" hx-include=\"closest input[type=&#39;file&#39;]\" hx-trigger=\"load delay:1s\" hx-target-errors=\"#results\" hx-swap=\"none\" disabled class=\"min-w-fit disabled:opacity-35 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800\">A enviar...<div class=\"mx-1 spin animate-spin\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-loader\"><path d=\"M12 2v4\"></path><path d=\"m16.2 7.8 2.9-2.9\"></path><path d=\"M18 12h4\"></path><path d=\"m16.2 16.2 2.9 2.9\"></path><path d=\"M12 18v4\"></path><path d=\"m4.9 19.1 2.9-2.9\"></path><path d=\"M2 12h4\"></path><path d=\"m4.9 4.9 2.9 2.9\"></path></svg></div></button>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
