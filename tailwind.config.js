@@ -3,10 +3,12 @@ module.exports = {
   content: ["./web/**/*.{templ,html}"],
   theme: {
     extend: {
-      maxWidth: {
-        "2.5xl": "1350px",
+      fadeIn: {
+        "0%": { opacity: 0 },
+        "100%": { opacity: 1 },
       },
     },
   },
+  darkMode: "class",
   plugins: [],
 };

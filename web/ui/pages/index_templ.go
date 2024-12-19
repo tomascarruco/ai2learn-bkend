@@ -31,7 +31,7 @@ func indexPage() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main class=\"bg-white rounded w-full p-6 border\"><h1>Hello there</h1></main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<main class=\"bg-white rounded w-full p-6 border\"><!-- TODO: Mano, tipo, tou cansado e ainda tenho que fazer tudo --><!-- TODO: New session, upload PDF, get PDF summary and chat with bot, at least.--><!-- TODO: Store session token in a cookie --></main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

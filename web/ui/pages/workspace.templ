@@ -1,0 +1,123 @@
+package pages
+
+import (
+	"github.com/tomascarruco/ai2learn-bkend/web/ui/components"
+	"github.com/tomascarruco/ai2learn-bkend/web/ui/layouts"
+)
+
+templ workspace() {
+	<style lang="css">
+		#workspace.htmx-swapping >* {
+			opacity: 0;
+			transition: opacity .5s ease-in-out;
+		}
+	</style>
+	<div id="results"></div>
+	<main
+		id="workspace"
+		class="bg-white rounded p-6 border w-full max-w-xl mx-auto "
+		hx-target="this"
+		hx-target-5*="#results"
+		hx-swap="innerhtml swap:0.5s "
+	>
+		<section>
+			<h2 class="text-lg font-semibold">área de trabalho</h2>
+			<p class="italic text-sm text-slate-400">parece que não tens nehuma área de trabalho.</p>
+		</section>
+		<hr class="my-4"/>
+		<button
+			hx-get="/workspace/create"
+			type="button"
+			class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+		>
+			nova área
+			<svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewbox="0 0 14 10">
+				<path stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 5h12m0 0l9 1m4 4l9 9"></path>
+			</svg>
+		</button>
+	</main>
+}
+
+templ WorkspaceCreating() {
+	<section>
+		<h2 class="text-lg font-semibold">Estamos quase lá...</h2>
+		<p class="italic text-sm text-slate-400">A criar a tua área de trabalho</p>
+	</section>
+	<hr class="my-4"/>
+	<button
+		hx-post="/api/v1/media/setup"
+		hx-trigger="load delay:1s"
+		hx-swap="innerHTML settle:1s"
+		hx-target-5*="#results"
+		type="button"
+		class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+	>
+		A criar...
+		<div class="mx-1 spin animate-spin">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-loader"><path d="M12 2v4"></path><path d="m16.2 7.8 2.9-2.9"></path><path d="M18 12h4"></path><path d="m16.2 16.2 2.9 2.9"></path><path d="M12 18v4"></path><path d="m4.9 19.1 2.9-2.9"></path><path d="M2 12h4"></path><path d="m4.9 4.9 2.9 2.9"></path></svg>
+		</div>
+	</button>
+}
+
+templ WorkspaceCreated(wsFolders []components.FolderProps) {
+	<style lang="css">
+		#workspace.htmx-swapping  {
+			opacity: 0;
+			transition: opacity 1s ease-in-out;
+		}
+	</style>
+	<section>
+		<h2 class="text-lg font-semibold">Área de trabalho</h2>
+		<p class="italic text-sm text-slate-400">O teu conteudo.</p>
+	</section>
+	<hr class="my-4"/>
+	<section class="px-4 flex flex-col gap-2 items-start justify-center">
+		<ul class="w-full space-y-3">
+			for _, folder := range wsFolders {
+				<li>
+					@components.Folder(folder)
+				</li>
+			}
+		</ul>
+	</section>
+}
+
+templ workspaceExists(wsFolders []components.FolderProps) {
+	<style lang="css">
+		#workspace.htmx-swapping >* {
+			opacity: 0;
+			transition: opacity .5s ease-in-out;
+		}
+	</style>
+	<div id="results"></div>
+	<main
+		id="workspace"
+		class="bg-white rounded p-6 border w-full max-w-xl mx-auto "
+		hx-target="this"
+		hx-target-5*="#results"
+		hx-swap="innerhtml swap:0.5s "
+	>
+		<section>
+			<h2 class="text-lg font-semibold">Área de trabalho</h2>
+			<p class="italic text-sm text-slate-400">O teu conteudo.</p>
+		</section>
+		<hr class="my-4"/>
+		<section class="px-4 flex flex-col gap-2 items-start justify-center">
+			<ul class="w-full space-y-3">
+				for _, folder := range wsFolders {
+					<li>
+						@components.Folder(folder)
+					</li>
+				}
+			</ul>
+		</section>
+	</main>
+}
+
+templ WorkspaceExists(wsFolders []components.FolderProps) {
+	@layouts.BaseLayout(workspaceExists(wsFolders))
+}
+
+templ Workspace() {
+	@layouts.BaseLayout(workspace())
+}

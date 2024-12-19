@@ -1,10 +1,19 @@
 package components
 
-templ Link(url string, content string) {
+type LinkProps struct {
+	Url      string
+	Name     string
+	Disabled bool
+}
+
+templ Link(props LinkProps) {
 	<a
-		href={ templ.SafeURL(url) }
-		class="p-1.5 px-2.5 border-b border-slate-300 bg-white hover:border-blue-700 transition ease-in-out"
+		href={ templ.SafeURL(props.Url) }
+		class={
+			"font-medium text-blue-600 dark:text-blue-500 hover:underline",
+			templ.KV("pointer-events-none text-black/40 border-slate-100", props.Disabled),
+		}
 	>
-		{ content }
+		{ templ.EscapeString(props.Name) }
 	</a>
 }

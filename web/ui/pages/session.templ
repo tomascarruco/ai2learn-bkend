@@ -1,0 +1,69 @@
+package pages
+
+import "github.com/tomascarruco/ai2learn-bkend/web/ui/layouts"
+
+templ sessionsPage() {
+	<main
+		id="next_steps"
+		class="bg-white rounded p-6 border w-full max-w-lg mx-auto"
+	>
+		<section class="flex flex-col gap-0.5 items-start justify-start">
+			<h1 class="text-lg font-medium">Create a new session!</h1>
+			<p class="text-sm text-slate-500/70">
+				A workspace will be created for you.
+			</p>
+		</section>
+		<hr class="my-4"/>
+		<form
+			id="newSessionForm"
+			hx-post="/api/v1/session"
+			hx-target="#next_steps"
+			hx-swap="outerHTML"
+			class="flex flex-col gap-4 items-start justify-center"
+		>
+			<span class="flex flex-col w-full gap-2 items-start justify-center px-1">
+				<label for="user" class="font-medium text-sm">What should we call you?</label>
+				<input type="text" placeholder="João" name="user" class="rounded border p-1.5 px-2 text-sm w-full"/>
+			</span>
+			<button
+				class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+			>
+				Let's Go!
+			</button>
+		</form>
+	</main>
+}
+
+templ SessionSuccess() {
+	<style type="text/css">
+		#next_steps.htmx-added {
+			transform: translateY(-5px);
+		  opacity: 0;
+		}
+		#next_steps {
+  		opacity: 1;
+			transform: translateY(5px);
+  		transition: all 0.3s 0.3s ease-in;
+		}
+	</style>
+	<main
+		id="next_steps"
+		class="bg-white rounded p-6 border w-full max-w-lg mx-auto "
+	>
+		<h1 class="text-lg font-medium">Sucesso!</h1>
+		<p class="text-sm text-slate-900/70">
+			Agora podemos-te criar uma área de trabalho.
+		</p>
+		<hr class="my-4"/>
+		<a
+			href="/workspace"
+			class="mx-auto text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+		>
+			Criar área de trabalho	
+		</a>
+	</main>
+}
+
+templ SessionsPage() {
+	@layouts.BaseLayout(sessionsPage())
+}

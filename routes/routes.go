@@ -14,7 +14,9 @@ import (
 	"github.com/tomascarruco/ai2learn-bkend/authentication"
 	"github.com/tomascarruco/ai2learn-bkend/services/gcloud"
 	"github.com/tomascarruco/ai2learn-bkend/services/media"
+	"github.com/tomascarruco/ai2learn-bkend/web/ui/components"
 	"github.com/tomascarruco/ai2learn-bkend/web/ui/pages"
+	"github.com/tomascarruco/ai2learn-bkend/web/ui/uictx"
 )
 
 func SetupRouting(app *fiber.App) {
@@ -47,11 +49,11 @@ func SetupRouting(app *fiber.App) {
 		"gen_ai_assessments.",
 	)
 
-	media := v1.Group("/media")
-	media.Use(authentication.JwtMiddleware())
-	media.Post("/setup", HandleNewUserWorkspaceCreation)
+	mediaRoutes := v1.Group("/media")
+	mediaRoutes.Use(authentication.JwtMiddleware())
+	mediaRoutes.Post("/setup", HandleNewUserWorkspaceCreation)
 
-	media.Route(
+	mediaRoutes.Route(
 		"/upload",
 		func(router fiber.Router) {
 			router.Post("/document", HandleNewDocumentUpload)
@@ -62,9 +64,94 @@ func SetupRouting(app *fiber.App) {
 
 	// UI
 	ui := app.Group("/")
+
 	ui.Get("", func(c *fiber.Ctx) error {
+		var routes []components.LinkProps
+
+		cookie := c.Cookies("session")
+		if cookie == "" {
+			routes = []components.LinkProps{
+				{
+					Url:      "/session",
+					Name:     "New Session",
+					Disabled: false,
+				},
+			}
+		} else {
+			routes = []components.LinkProps{
+				{
+					Url:      "/workspace",
+					Name:     "Área de Trabalho",
+					Disabled: false,
+				},
+			}
+		}
+
+		c.Locals(
+			uictx.NavOptionsKey,
+			routes,
+		)
 		return Render(c, pages.IndexPage())
 	})
+
+	ui.Get("/session", func(c *fiber.Ctx) error {
+		return Render(c, pages.SessionsPage())
+	})
+
+	ui.Route(
+		"/workspace",
+		func(router fiber.Router) {
+			router.Get("", authentication.JwtMiddleware(), func(c *fiber.Ctx) error {
+				log.Debugw("TOKEN", "token", c.Cookies("session"))
+				_, err := authentication.ExtractJwtMClaims(c)
+				if err != nil {
+					log.Errorw("Error on parssing jwt", "reason", err.Error())
+					return fiber.ErrBadRequest
+				}
+
+				foldersToCreate := append(media.InputFolders[:], media.OutputFolders...)
+				folders := make([]components.FolderProps, len(foldersToCreate))
+
+				for i, folder := range media.InputFolders {
+					folders[i] = components.FolderProps{
+						Name:      folder,
+						Categorie: "input",
+						FileCount: 0,
+					}
+				}
+
+				for i, folder := range media.OutputFolders {
+					folders[i] = components.FolderProps{
+						Name:      folder,
+						Categorie: "output",
+						FileCount: 0,
+					}
+				}
+
+				if err == nil {
+					return Render(c, pages.WorkspaceExists(folders))
+				} else {
+					return Render(c, pages.Workspace())
+				}
+			})
+
+			router.Get("/create", func(c *fiber.Ctx) error {
+				return Render(c, pages.WorkspaceCreating())
+			})
+
+			router.Get("/create", func(c *fiber.Ctx) error {
+				folders := []components.FolderProps{
+					{
+						Name:      "Documentos",
+						Categorie: "pdfs",
+						FileCount: 4,
+					},
+				}
+				return Render(c, pages.WorkspaceCreated(folders))
+			})
+		},
+		"workspace.",
+	)
 }
 
 func Render(c *fiber.Ctx, component templ.Component) error {
@@ -83,12 +170,7 @@ func HandleNewSessionRequest(c *fiber.Ctx) error {
 		)
 
 		c.Status(fiber.ErrBadRequest.Code)
-
-		return c.JSON(
-			fiber.Map{
-				"reason": "bad username",
-			},
-		)
+		return Render(c, components.NewToast("Nome inválido!").Error())
 	}
 
 	log.Infow("New session creation request", "user", user)
@@ -104,23 +186,31 @@ func HandleNewSessionRequest(c *fiber.Ctx) error {
 		)
 
 		c.Status(fiber.ErrInternalServerError.Code)
-
-		return c.JSON(
-			fiber.Map{
-				"reason": "Unable to authenticate user",
-			},
-		)
+		return Render(c, components.NewToast("Erro inesperado, tenta mais tarde!").Error())
 	}
 
-	log.Infow("New session creation request SUCCESS", "user", user)
-	return c.JSON(fiber.Map{"token": jwt})
+	log.Infow("New session creation request SUCCESS", "user", user, "jwt", jwt)
+	c.Cookie(&fiber.Cookie{
+		Name:        "session",
+		Value:       jwt,
+		MaxAge:      60 * 60 * 24,
+		Expires:     time.Now().Add(time.Hour * 24),
+		HTTPOnly:    true,
+		SameSite:    "lax",
+		SessionOnly: true,
+	})
+	return Render(c, pages.SessionSuccess())
 }
 
 func HandleNewDocumentUpload(c *fiber.Ctx) error {
 	logger := log.WithContext(c.UserContext())
 	logger.Infow("Received new PDF upload request")
 
-	claims := authentication.ExtractJwtMClaims(c)
+	claims, err := authentication.ExtractJwtMClaims(c)
+	if err != nil {
+		logger.Errorw("Error on parssing jwt", "reason", err.Error())
+		return fiber.ErrBadRequest
+	}
 	subject := claims["name"].(string)
 
 	formFile, err := c.FormFile("document")
@@ -165,7 +255,11 @@ func HandleNewImageUpload(c *fiber.Ctx) error {
 	logger := log.WithContext(c.UserContext())
 	logger.Infow("Received new PDF upload request")
 
-	claims := authentication.ExtractJwtMClaims(c)
+	claims, err := authentication.ExtractJwtMClaims(c)
+	if err != nil {
+		logger.Errorw("Error on parssing jwt", "reason", err.Error())
+		return fiber.ErrBadRequest
+	}
 	subject := claims["name"].(string)
 
 	formFile, err := c.FormFile("image")
@@ -210,8 +304,13 @@ func HandleNewUserWorkspaceCreation(c *fiber.Ctx) error {
 	logger := log.WithContext(c.UserContext())
 	logger.Infow("Creating new user workspace")
 
-	claims := authentication.ExtractJwtMClaims(c)
+	claims, err := authentication.ExtractJwtMClaims(c)
+	if err != nil {
+		logger.Errorw("Error on parssing jwt", "reason", err.Error())
+		return fiber.ErrTeapot
+	}
 	subject := claims["name"].(string)
+	subject = strings.ToLower(subject)
 
 	logger.Infow("New user workspace", "user", subject)
 
@@ -219,12 +318,32 @@ func HandleNewUserWorkspaceCreation(c *fiber.Ctx) error {
 
 	if err := media.SetupUserMediaStorage(subject, logger, foldersToCreate...); err != nil {
 		logger.Errorw("Failure creating a user workspace", "user_workspace", subject, "reason", err.Error())
-		return fiber.ErrInternalServerError
+
+		c.Status(fiber.StatusInternalServerError)
+		return Render(c, components.NewToast("Ocurreu algo inesperado, tente mais tarde.").Error())
 	}
 
 	logger.Infow("Success creating media workspace", "workspace", subject)
 
-	return c.SendStatus(fiber.StatusOK)
+	folders := make([]components.FolderProps, len(foldersToCreate))
+
+	for i, folder := range media.InputFolders {
+		folders[i] = components.FolderProps{
+			Name:      folder,
+			Categorie: "input",
+			FileCount: 0,
+		}
+	}
+
+	for i, folder := range media.OutputFolders {
+		folders[i] = components.FolderProps{
+			Name:      folder,
+			Categorie: "output",
+			FileCount: 0,
+		}
+	}
+
+	return Render(c, pages.WorkspaceCreated(folders))
 }
 
 // TODO:
@@ -247,7 +366,11 @@ func HandleDocumentSummary(c *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	claims := authentication.ExtractJwtMClaims(c)
+	claims, err := authentication.ExtractJwtMClaims(c)
+	if err != nil {
+		logger.Errorw("Error on parssing jwt", "reason", err.Error())
+		return fiber.ErrBadRequest
+	}
 	subject := claims["name"].(string)
 
 	modelConnector, err := gcloud.NewGenAiModelConnector(subject, gcloud.PROMPT_DOCUMENT_SUMMARY)
