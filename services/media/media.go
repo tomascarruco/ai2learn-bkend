@@ -11,6 +11,7 @@ type AcceptedObjContentType uint8
 
 const (
 	PDF AcceptedObjContentType = iota
+	Markdown
 	TextDocument
 	IMG
 	_ContentTypeCounter
@@ -44,7 +45,7 @@ func MapContentTypeToFolder(contentType AcceptedObjContentType) (string, error) 
 		return "", fmt.Errorf("Invalid value for content type")
 	}
 	switch contentType {
-	case PDF:
+	case PDF, Markdown, TextDocument:
 		return InpDocumentsFolder, nil
 	case IMG:
 		return InImagesFolder, nil

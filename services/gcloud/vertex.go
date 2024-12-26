@@ -13,11 +13,11 @@ import (
 
 // VertexAI/Project model related constants
 const (
-	ModelLocation     = "us-central-1"
-	ModelName         = "gemini-2.0-flash-exp"
+	ModelLocation     = "europe-west2"
+	ModelName         = "gemini-1.5-flash-002"
 	ModelTemperature  = 1
 	ModelTopP         = 0.95
-	ModelMaxOutTokens = 10_000
+	ModelMaxOutTokens = 20_000
 	ModelResponseType = "TEXT"
 	ModelTimeout      = time.Minute
 	ProjectName       = "ai2learn"
@@ -29,7 +29,7 @@ func SetupAppGenAiConnection() error {
 	ctx, cancel := context.WithTimeout(context.Background(), ModelTimeout)
 	defer cancel()
 
-	newClient, err := genai.NewClient(ctx, "ai2learn", ModelLocation)
+	newClient, err := genai.NewClient(ctx, ProjectName, ModelLocation)
 	if err != nil {
 		log.Errorw("Failed to establish connection to vertexai service", "reason", err.Error())
 		return err
@@ -68,10 +68,12 @@ func NewGenAiModelConnector(callerIdentifier string, prompts ...string) (*GenAiM
 	}
 
 	genModel := AppGenAiClient.GenerativeModel(ModelName)
-	if genModel != nil {
+	if genModel == nil {
 		log.Errorw("Cloud not get genModel from the genai client", "reason", "Unknown internal genai error?")
 		return nil, errors.New("Could not get genModel handle from genai client")
 	}
+	genModel.SetTopP(ModelTopP)
+	genModel.SetTemperature(ModelTemperature)
 
 	ims := &GenAiModelConnector{
 		callerIdentifier: callerIdentifier,
@@ -87,6 +89,10 @@ func (s *GenAiModelConnector) CreateChatSession() {
 	s.sessionChat = s.sessionModel.StartChat()
 }
 
+func (s *GenAiModelConnector) SetResponseContentTyoe(contentType string) {
+	s.sessionModel.ResponseMIMEType = contentType
+}
+
 func (s *GenAiModelConnector) SummarizeTexBasedContent(
 	bucketPath string,
 	contentType string,
@@ -96,6 +102,8 @@ func (s *GenAiModelConnector) SummarizeTexBasedContent(
 		MIMEType: contentType,
 		FileURI:  bucketPath,
 	}
+
+	log.Infow("gen ai file data", "data", content)
 
 	prompt := s.basePrompt
 	if strings.TrimSpace(prompt) == "" {
@@ -108,7 +116,7 @@ func (s *GenAiModelConnector) SummarizeTexBasedContent(
 
 	resp, err := s.sessionModel.GenerateContent(ctx, content, geminiPrompt)
 	if err != nil {
-		return nil, errors.New("No response returned from model")
+		return nil, fmt.Errorf("New error generating content: %+v", err)
 	}
 
 	if resp == nil {
@@ -128,7 +136,7 @@ func (s *GenAiModelConnector) SummarizeTexBasedContent(
 	return &ContentGenerationResult{
 		CreatedAt:           time.Now(),
 		Prompt:              prompt,
-		OptionalInteraction: strings.Join(otherPrompt, "#!end_promp!t#"),
+		OptionalInteraction: strings.Join(otherPrompt, "\n"),
 		GeneratedContent:    string(part.(genai.Text)),
 	}, nil
 }

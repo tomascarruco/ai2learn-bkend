@@ -26,7 +26,7 @@ func NewCloudStorageHandler(projectId string) (*CloudStorageHandler, error) {
 	client, err := storage.NewClient(ctx)
 	if err != nil {
 		log.Errorw(
-			"failure on creatting a new cloud storage client",
+			"failure on creating a new cloud storage client",
 			"reason",
 			err.Error(),
 		)
@@ -38,7 +38,7 @@ func NewCloudStorageHandler(projectId string) (*CloudStorageHandler, error) {
 	controllClient, err := control.NewStorageControlClient(ctx)
 	if err != nil {
 		log.Errorw(
-			"failure on creatting a new cloud storage controll client",
+			"failure on creating a new cloud storage control client",
 			"reason",
 			err.Error(),
 		)
@@ -60,7 +60,7 @@ func (csb *CloudStorageHandler) CreateBucket(ctx context.Context, bucketName str
 ) {
 	if strings.Contains(bucketName, "projects/312193984213/buckets") {
 		log.Warnw("Attempt to create a bucket with invalid name", "attempt", bucketName)
-		return nil, errors.New("Bad bucket namge was given")
+		return nil, errors.New("Bad bucket name was given")
 	}
 	bucket = csb.client.Bucket(bucketName)
 

@@ -1,0 +1,13 @@
+package pages
+
+templ generationResult(content string) {
+<div class="p-4 bg-white border rounded w-full max-w-5xl">
+	<p>
+		{ content }
+	</p>
+</div>
+}
+
+templ GenerationResult(content string) {
+@generationResult(content)
+}

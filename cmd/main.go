@@ -13,6 +13,9 @@ import (
 
 func main() {
 	gcloud.CreateGCloudStorageHandler()
+	if err := gcloud.SetupAppGenAiConnection(); err != nil {
+		log.Fatalf("Error setting up gen ai connection: %+v", err)
+	}
 
 	app := fiber.New(fiber.Config{
 		AppName: "Ai2Learn+beta",

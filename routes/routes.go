@@ -24,6 +24,11 @@ func SetupRouting(app *fiber.App) {
 		return c.SendStatus(fiber.StatusOK)
 	})
 
+	app.Route("/generation", func(router fiber.Router) {
+		router.Get("", FileUploadPage)
+		router.Post("/up/", FileUploadHandler)
+	})
+
 	// API
 	api := app.Group("/api")
 

@@ -9,7 +9,16 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1
 )
 
-require github.com/a-h/templ v0.2.793
+require (
+	github.com/a-h/templ v0.2.793
+	github.com/gofiber/fiber v1.14.6
+)
+
+require (
+	cloud.google.com/go/datastore v1.20.0 // indirect
+	github.com/gofiber/utils v0.0.10 // indirect
+	github.com/gorilla/schema v1.1.0 // indirect
+)
 
 require (
 	cel.dev/expr v0.16.1 // indirect
